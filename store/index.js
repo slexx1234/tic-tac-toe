@@ -60,6 +60,14 @@ const store = () => new Vuex.Store({
             state.drawer = !state.drawer;
         },
 
+        showDrawer(state) {
+            state.drawer = true;
+        },
+
+        hideDrawer(state) {
+            state.drawer = true;
+        },
+
         step(state, { row, cell, player }) {
             if (state.board[row][cell] === PLAYER_UNKNOWN) {
                 state.board[row][cell] = player;

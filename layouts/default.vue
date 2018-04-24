@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <v-navigation-drawer fixed clipped v-model="$store.state.drawer" app dark>
+        <v-navigation-drawer fixed clipped v-model="drawer" app dark>
             <v-container>
                 <v-text-field type="number" label="Board width" min="1" v-model="width"/>
                 <v-text-field type="number" label="Board height" min="1" v-model="height"/>
@@ -71,6 +71,10 @@
             complexity(complexity) {
                 this.$store.commit('setComplexity', complexity);
             },
+
+            drawer(drawer) {
+                this.$store.commit(drawer ? 'showDrawer' : 'hideDrawer');
+            },
         },
 
         methods: {
@@ -79,7 +83,7 @@
             },
 
             toggleDrawer() {
-                this.$store.commit('toggleDrawer');
+                this.drawer = !this.drawer;
             },
         }
     }
