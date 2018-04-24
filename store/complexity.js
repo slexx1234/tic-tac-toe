@@ -1,0 +1,4 @@
+export const COMPLEXITY_EASY = 0;
+export const COMPLEXITY_MEDIUM = 1;
+export const COMPLEXITY_HARD = 2;
+export const COMPLEXITY_DEFAULT = COMPLEXITY_MEDIUM;
