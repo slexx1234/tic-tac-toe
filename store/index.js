@@ -1,24 +1,15 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { PLAYER_X, PLAYER_O, PLAYER_UNKNOWN } from './players';
+import Board from './Board';
 import { COMPLEXITY_DEFAULT } from './complexity';
+import { PLAYER_X, PLAYER_O, PLAYER_UNKNOWN } from './players';
 
 Vue.use(Vuex);
 
 const DEFAULT_BOARD_HEIGHT = 20;
 const DEFAULT_BOARD_WIDTH = 20;
 
-function createBoard(height, width) {
-    let board = [];
-    for(let i = 0; i < height; i++) {
-        let row = [];
-        for(let n = 0; n < width; n++) {
-            row.push(PLAYER_UNKNOWN);
-        }
-        board.push(row);
-    }
-    return board;
-}
+const DEFAULT_BOARD = Board.create(DEFAULT_BOARD_HEIGHT, DEFAULT_BOARD_WIDTH);
 
 const store = () => new Vuex.Store({
     state: {
@@ -27,29 +18,38 @@ const store = () => new Vuex.Store({
         target: 5,
         enemy: PLAYER_O,
         player: PLAYER_X,
-        board: createBoard(DEFAULT_BOARD_HEIGHT, DEFAULT_BOARD_WIDTH),
+        board: DEFAULT_BOARD,
         complexity: COMPLEXITY_DEFAULT,
         drawer: true,
+        winner: Board.winner(DEFAULT_BOARD),
     },
 
     mutations: {
+        setWinner(state, winner) {
+            state.winner = winner;
+        },
+
         setComplexity(state, complexity) {
-            this.complexity = complexity;
+            state.complexity = complexity;
+            Board.setComplexity(complexity);
         },
 
         setHeight(state, height) {
             state.height = height;
-            state.board = createBoard(height, state.width);
+            state.board = Board.create(height, state.width);
+            state.winner = Board.winner(state.board);
         },
 
         setWidth(state, width) {
             state.width = width;
-            state.board = createBoard(state.height, width);
+            state.board = Board.create(state.height, width);
+            state.winner = Board.winner(state.board);
         },
 
         setTarget(state, target) {
             state.target = target;
-            state.board = createBoard(state.height, state.width);
+            state.board = Board.create(state.height, state.width);
+            state.winner = Board.winner(state.board);
         },
 
         setPlayer(state, player) {
@@ -59,7 +59,8 @@ const store = () => new Vuex.Store({
                 state.enemy = PLAYER_O;
             }
             state.player = player;
-            state.board = createBoard(state.height, state.width);
+            state.board = Board.create(state.height, state.width);
+            state.winner = Board.winner(state.board);
         },
 
         toggleDrawer(state) {
@@ -76,46 +77,28 @@ const store = () => new Vuex.Store({
 
         currentPlayerStep(state, { row, cell }) {
             if (state.board[row][cell] === PLAYER_UNKNOWN) {
-                let board = state.board.slice(0);
-                state.board = [];
-                board[row][cell] = state.player;
-                state.board = board;
+                state.board = Board.step(state.board, row, cell, state.player);
+                state.board = Board.deem(state.board, state.enemy);
+                state.winner = Board.winner(state.board, state.target);
             }
         },
 
         step(state, { row, cell, player }) {
             if (state.board[row][cell] === PLAYER_UNKNOWN) {
-                let board = state.board.slice(0);
-                board[row][cell] = player;
-                state.board = board;
+                state.board = Board.step(state.board, row, cell, player);
+                state.winner = Board.winner(state.board);
             }
         },
 
         clear(state) {
-            state.board = createBoard(state.height, state.width);
+            state.board = Board.create(state.height, state.width);
+            state.winner = Board.winner(state.board);
         },
     },
 
     actions: {
         step({ state, commit }, { row, cell }) {
             commit('currentPlayerStep', { row, cell });
-
-            let available = [];
-            let i = 0;
-            for(let row of state.board) {
-                let n = 0;
-                for(let cell of row) {
-                    if (cell === PLAYER_UNKNOWN) {
-                        available.push([i, n]);
-                    }
-                    n++;
-                }
-                i++;
-            }
-
-            let step = available[Math.floor(Math.random() * available.length)];
-
-            commit('step', { row: step[0], cell: step[1], player: state.enemy });
         },
     },
 });

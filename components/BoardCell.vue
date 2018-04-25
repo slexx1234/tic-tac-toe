@@ -1,5 +1,5 @@
 <template>
-    <div class="board__cell" @click="onClick">
+    <div :class="wrapClass" @click="onClick">
         <div :class="playerClass"></div>
     </div>
 </template>
@@ -12,9 +12,18 @@
 
         props: {
             player: Number,
+            clickable: Boolean,
         },
 
         computed: {
+            wrapClass() {
+                let result = ['board__cell'];
+
+                if (this.clickable && this.player === PLAYER_UNKNOWN) result.push('board__cell--clickable');
+
+                return result;
+            },
+
             playerClass() {
                 let result = ['board__player'];
 
@@ -34,7 +43,7 @@
 
         methods: {
             onClick() {
-                if (this.player === PLAYER_UNKNOWN) {
+                if (this.player === PLAYER_UNKNOWN && this.clickable) {
                     this.$emit('step');
                 }
             },
@@ -47,10 +56,13 @@
         width: 40px;
         height: 40px;
         border-right: 2px solid #ddd;
-        cursor: pointer;
 
         &:last-child {
             border-right: none;
+        }
+
+        &--clickable {
+            cursor: pointer;
         }
     }
 
