@@ -25,6 +25,7 @@ const store = () => new Vuex.Store({
         height: DEFAULT_BOARD_HEIGHT,
         width: DEFAULT_BOARD_WIDTH,
         target: 5,
+        enemy: PLAYER_O,
         player: PLAYER_X,
         board: createBoard(DEFAULT_BOARD_HEIGHT, DEFAULT_BOARD_WIDTH),
         complexity: COMPLEXITY_DEFAULT,
@@ -52,6 +53,11 @@ const store = () => new Vuex.Store({
         },
 
         setPlayer(state, player) {
+            if (player === PLAYER_O) {
+                state.enemy = PLAYER_X;
+            } else {
+                state.enemy = PLAYER_O;
+            }
             state.player = player;
             state.board = createBoard(state.height, state.width);
         },
@@ -68,16 +74,50 @@ const store = () => new Vuex.Store({
             state.drawer = true;
         },
 
+        currentPlayerStep(state, { row, cell }) {
+            if (state.board[row][cell] === PLAYER_UNKNOWN) {
+                let board = state.board.slice(0);
+                state.board = [];
+                board[row][cell] = state.player;
+                state.board = board;
+            }
+        },
+
         step(state, { row, cell, player }) {
             if (state.board[row][cell] === PLAYER_UNKNOWN) {
-                state.board[row][cell] = player;
+                let board = state.board.slice(0);
+                board[row][cell] = player;
+                state.board = board;
             }
         },
 
         clear(state) {
             state.board = createBoard(state.height, state.width);
         },
-    }
+    },
+
+    actions: {
+        step({ state, commit }, { row, cell }) {
+            commit('currentPlayerStep', { row, cell });
+
+            let available = [];
+            let i = 0;
+            for(let row of state.board) {
+                let n = 0;
+                for(let cell of row) {
+                    if (cell === PLAYER_UNKNOWN) {
+                        available.push([i, n]);
+                    }
+                    n++;
+                }
+                i++;
+            }
+
+            let step = available[Math.floor(Math.random() * available.length)];
+
+            commit('step', { row: step[0], cell: step[1], player: state.enemy });
+        },
+    },
 });
 
 export default store;
