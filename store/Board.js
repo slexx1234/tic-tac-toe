@@ -1,4 +1,4 @@
-import { PLAYER_UNKNOWN } from './players';
+import {PLAYER_O, PLAYER_UNKNOWN, PLAYER_X} from './players';
 import { COMPLEXITY_DEFAULT } from './complexity';
 
 class Board {
@@ -51,12 +51,11 @@ class Board {
     }
 
     /**
-     * Ход компьютера
+     * Получение доступного хода
      * @param {Array} board
-     * @param {Number} player - Игрок за которого играет компьютер
      * @returns {Array}
      */
-    static deem(board, player) {
+    static availableSteps(board) {
         let available = [];
         let i = 0;
         for(let row of board) {
@@ -70,7 +69,146 @@ class Board {
             i++;
         }
 
-        let step = available[Math.floor(Math.random() * available.length)];
+        return available[Math.floor(Math.random() * available.length)];
+    }
+
+    /**
+     * Проверяет можно ли совершить ход
+     * @param {Array} board
+     * @param {Number} row
+     * @param {Number} cell
+     * @returns {boolean}
+     */
+    static isAvailableCell(board, row, cell) {
+        return typeof board[row] !== 'undefined' && typeof board[row][cell] !== 'undefined' && board[row][cell] === PLAYER_UNKNOWN;
+    }
+
+    /**
+     * Получение доступных ходов к ходу игрока
+     * @param {Array} board
+     * @param {Number} player
+     * @returns {Array}
+     */
+    static relationsSteps(board, player) {
+        let relations = {};
+
+        /**
+         * Проверяет ячейку и записывает её если на неё ещё не кто не ходил
+         * @param {Number} row
+         * @param {Number} cell
+         */
+        let think = (row, cell) => {
+            if (this.isAvailableCell(board, row, cell)) {
+                if (typeof relations[row] === 'undefined') {
+                    relations[row] = {};
+                }
+                relations[row][cell] = 0;
+            }
+        };
+
+        for(let i = 0; i < board.length; i++) {
+            let row = board[i];
+            for(let n = 0; n < row.length; n++) {
+                let cell = row[n];
+                if (cell === player) {
+                    think(i - 1, n - 1); // Top left
+                    think(i - 1, n);     // Top middle
+                    think(i - 1, n + 1); // Top right
+                    
+                    think(i + 1, n - 1); // Bottom left
+                    think(i + 1, n);     // Bottom middle
+                    think(i + 1, n + 1); // Bottom right
+                    
+                    think(i, n - 1);     // Left
+                    think(i, n + 1);     // Right
+                }
+            }
+        }
+
+        let result = [];
+        for(let row of Object.keys(relations)) {
+            for(let cell of Object.keys(relations[row])) {
+                result.push([Number(row), Number(cell)]);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Получение случайного значения из массива
+     * @param {Array} array
+     * @returns {*}
+     */
+    static randomFromArray(array) {
+        const i = Math.floor(Math.random() * array.length);
+        if (typeof array[i] === 'undefined') {
+            return null;
+        }
+        return array[i];
+    }
+
+    /**
+     * Получение случайного доступного хода близкого к ходу противника
+     * @param {Array} board
+     * @param {Number} player
+     * @returns {Array}
+     */
+    static randomRelationStep(board, player) {
+        return this.randomFromArray(this.relationsSteps(board, player));
+    }
+
+    /**
+     * Получение случайного доступного хода
+     * @param {Array} board
+     * @returns {Array}
+     */
+    static randomAvailableStep(board) {
+        return this.randomFromArray(this.availableSteps(board));
+    }
+
+    /**
+     * Получение противника игрока
+     * @param {Number} player
+     * @returns {number}
+     */
+    static enemy(player) {
+        if (player === PLAYER_O) {
+            return PLAYER_X;
+        }
+        return PLAYER_O;
+    }
+
+    /**
+     * Выполнение функций по порядку до тех пор пока первая не ве =рнёт какое либо значение
+     * отличное от null
+     * @param {Function[]} queue
+     * @returns {*}
+     */
+    static queue(queue) {
+        for(let fn of queue) {
+            let result = fn();
+            if (result !== null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Ход компьютера
+     * @param {Array} board
+     * @param {Number} player - Игрок за которого играет компьютер
+     * @returns {Array}
+     */
+    static deem(board, player) {
+        let step = this.queue([
+            () => this.randomRelationStep(board, this.enemy(player)),
+            () => this.availableSteps(board),
+        ]);
+
+        if (step === null) {
+            // TODO Нет ходов
+        }
 
         return this.step(board, step[0], step[1], player)
     }
