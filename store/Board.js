@@ -1,5 +1,5 @@
 import {PLAYER_O, PLAYER_UNKNOWN, PLAYER_X} from './players';
-import { COMPLEXITY_DEFAULT } from './complexity';
+import {COMPLEXITY_DEFAULT, COMPLEXITY_EASY, COMPLEXITY_HARD, COMPLEXITY_MEDIUM} from './complexity';
 
 class Board {
     /**
@@ -221,17 +221,52 @@ class Board {
     }
 
     /**
+     * Получение процента тупости для сложности
+     * @param {Number} complexity
+     * @returns {Number}
+     */
+    static stupidityLevel(complexity) {
+        switch(complexity) {
+            case COMPLEXITY_HARD:   return 5;
+            case COMPLEXITY_MEDIUM: return 10;
+            default:                return 20;
+        }
+    }
+
+    /**
+     * @param {Number} min
+     * @param {Number} max
+     * @returns {Number}
+     */
+    static rand(min, max) {
+        let rand = min + Math.random() * (max + 1 - min);
+        rand = Math.floor(rand);
+        return rand;
+    }
+
+    /**
+     * @param {Number} complexity
+     * @returns {Boolean}
+     */
+    static isStupid(complexity) {
+        return this.stupidityLevel(complexity) > this.rand(0, 100);
+    }
+
+    /**
      * Ищет выигрышный ход, потом ищет ход где нужно защащатся,
      * если не один ход не найден, цель понижается
      * @param {Array} board
      * @param {Number} player
      * @param {Number} target
+     * @param {Number} complexity
      * @returns {Array}
      */
-    static deemStep(board, player, target) {
-        let step = this.queue([
-            () => this.randomStepForVictory(board, player, target),
-            () => this.randomStepForVictory(board, this.enemy(player), target),
+    static deemStep(board, player, target, complexity) {
+        const isStupid = this.isStupid(complexity);
+
+        const step = this.queue([
+            () => this.randomStepForVictory(board, player, isStupid ? 2 : target),
+            () => this.randomStepForVictory(board, this.enemy(player), isStupid ? 2 : target),
         ]);
 
         if (step !== null) {
@@ -239,7 +274,7 @@ class Board {
         }
 
         if (target - 1 > 1) {
-            return this.deemStep(board, player, target - 1);
+            return this.deemStep(board, player, target - 1, complexity);
         }
 
         return this.randomAvailableStep(board);
@@ -250,10 +285,11 @@ class Board {
      * @param {Array} board
      * @param {Number} player - Игрок за которого играет компьютер
      * @param {Number} target
+     * @param {Number} complexity
      * @returns {Array}
      */
-    static deem(board, player, target) {
-        let step = this.deemStep(board, player, target);
+    static deem(board, player, target, complexity) {
+        let step = this.deemStep(board, player, target, complexity);
 
         if (step === null) {
             return board;

@@ -80,7 +80,7 @@ const store = () => new Vuex.Store({
                 state.board = Board.step(state.board, row, cell, state.player);
                 state.winner = Board.winner(state.board, state.target);
                 if (state.winner === null) {
-                    state.board = Board.deem(state.board, state.enemy, state.target);
+                    state.board = Board.deem(state.board, state.enemy, state.target, state.complexity);
                 }
                 state.winner = Board.winner(state.board, state.target);
             }

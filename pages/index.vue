@@ -121,6 +121,7 @@
             lineStyles() {
                 return {
                     stroke: '#424242',
+                    strokeLinecap: 'round',
                     strokeWidth: '5px'
                 };
             },
