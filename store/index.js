@@ -78,7 +78,10 @@ const store = () => new Vuex.Store({
         currentPlayerStep(state, { row, cell }) {
             if (state.board[row][cell] === PLAYER_UNKNOWN) {
                 state.board = Board.step(state.board, row, cell, state.player);
-                state.board = Board.deem(state.board, state.enemy);
+                state.winner = Board.winner(state.board, state.target);
+                if (state.winner === null) {
+                    state.board = Board.deem(state.board, state.enemy, state.target);
+                }
                 state.winner = Board.winner(state.board, state.target);
             }
         },

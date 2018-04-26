@@ -69,7 +69,7 @@ class Board {
             i++;
         }
 
-        return available[Math.floor(Math.random() * available.length)];
+        return available;
     }
 
     /**
@@ -84,50 +84,75 @@ class Board {
     }
 
     /**
-     * Получение доступных ходов к ходу игрока
+     * Получение ходов для победы
      * @param {Array} board
      * @param {Number} player
+     * @param {Number} target
      * @returns {Array}
      */
-    static relationsSteps(board, player) {
-        let relations = {};
-
-        /**
-         * Проверяет ячейку и записывает её если на неё ещё не кто не ходил
-         * @param {Number} row
-         * @param {Number} cell
-         */
-        let think = (row, cell) => {
-            if (this.isAvailableCell(board, row, cell)) {
-                if (typeof relations[row] === 'undefined') {
-                    relations[row] = {};
-                }
-                relations[row][cell] = 0;
-            }
-        };
+    static stepsForVictory(board, player, target) {
+        let steps = {};
 
         for(let i = 0; i < board.length; i++) {
-            let row = board[i];
-            for(let n = 0; n < row.length; n++) {
-                let cell = row[n];
-                if (cell === player) {
-                    think(i - 1, n - 1); // Top left
-                    think(i - 1, n);     // Top middle
-                    think(i - 1, n + 1); // Top right
-                    
-                    think(i + 1, n - 1); // Bottom left
-                    think(i + 1, n);     // Bottom middle
-                    think(i + 1, n + 1); // Bottom right
-                    
-                    think(i, n - 1);     // Left
-                    think(i, n + 1);     // Right
+            for(let n = 0; n < board[i].length; n++) {
+                /**
+                 * Перебор доски, поиск победной комбинации, n в ряд
+                 * @param {Function} thinkRow
+                 * @param {Function} thinkCell
+                 * @return {Number}
+                 */
+                let think = (thinkRow, thinkCell) => {
+                    let players = {};
+
+                    for(let j = 0; j < target; j++) {
+                        let row = thinkRow(i, n, j);
+                        let cell = thinkCell(i, n, j);
+
+                        if (typeof board[row] === 'undefined' || typeof board[row][cell] === 'undefined') {
+                            return null;
+                        }
+
+                        if (typeof players[board[row][cell]] === 'undefined') {
+                            players[board[row][cell]] = [];
+                        }
+
+                        players[board[row][cell]].push([row, cell]);
+                    }
+
+                    if (typeof players[player] === 'undefined'
+                        || typeof players[PLAYER_UNKNOWN] === 'undefined'
+                        || players[PLAYER_UNKNOWN].length !== 1
+                        || players[player].length !== target - 1) {
+                        return null;
+                    }
+
+                    return players[PLAYER_UNKNOWN][0];
+                };
+
+                let d = [];
+
+                d.push(think((i, n, j) => i,     (i, n, j) => n + j)); // Поиск победного хода по горизонтали
+                d.push(think((i, n, j) => i + j, (i, n, j) => n)); // Поиск победного хода по вертикали
+                d.push(think((i, n, j) => i + j, (i, n, j) => n + j)); // Поиск сверху слева в низ вправо
+                d.push(think((i, n, j) => i + j, (i, n, j) => n - j)); // Поиск снизу слева в верх в право
+
+                for(let step of d) {
+                    if (step === null) {
+                        continue;
+                    }
+
+                    if (typeof steps[step[0]] === 'undefined') {
+                        steps[step[0]] = {};
+                    }
+
+                    steps[step[0]][step[1]] = 0;
                 }
             }
         }
 
         let result = [];
-        for(let row of Object.keys(relations)) {
-            for(let cell of Object.keys(relations[row])) {
+        for(let row of Object.keys(steps)) {
+            for(let cell of Object.keys(steps[row])) {
                 result.push([Number(row), Number(cell)]);
             }
         }
@@ -148,22 +173,23 @@ class Board {
     }
 
     /**
-     * Получение случайного доступного хода близкого к ходу противника
-     * @param {Array} board
-     * @param {Number} player
-     * @returns {Array}
-     */
-    static randomRelationStep(board, player) {
-        return this.randomFromArray(this.relationsSteps(board, player));
-    }
-
-    /**
      * Получение случайного доступного хода
      * @param {Array} board
      * @returns {Array}
      */
     static randomAvailableStep(board) {
         return this.randomFromArray(this.availableSteps(board));
+    }
+
+    /**
+     * Получение случайного победного хода
+     * @param {Array} board
+     * @param {Number} player
+     * @param {Number} target
+     * @returns {Array}
+     */
+    static randomStepForVictory(board, player, target) {
+        return this.randomFromArray(this.stepsForVictory(board, player, target));
     }
 
     /**
@@ -195,15 +221,41 @@ class Board {
     }
 
     /**
+     * Агрессия противника, ищет выигрышный ход, потом ищет ход где нужно защащатся,
+     * если не один ход не найден, цель понижается
+     * @param {Array} board
+     * @param {Number} player
+     * @param {Number} target
+     * @returns {Array}
+     */
+    static aggression(board, player, target) {
+        let step = this.queue([
+            () => this.randomStepForVictory(board, player, target),
+            () => this.randomStepForVictory(board, this.enemy(player), target),
+        ]);
+
+        if (step !== null) {
+            return step;
+        }
+
+        if (target - 1 > 1) {
+            return this.aggression(board, player, target - 1);
+        }
+
+        return null;
+    }
+
+    /**
      * Ход компьютера
      * @param {Array} board
      * @param {Number} player - Игрок за которого играет компьютер
+     * @param {Number} target
      * @returns {Array}
      */
-    static deem(board, player) {
+    static deem(board, player, target) {
         let step = this.queue([
-            () => this.randomRelationStep(board, this.enemy(player)),
-            () => this.availableSteps(board),
+            () => this.aggression(board, player, target),
+            () => this.randomAvailableStep(board),
         ]);
 
         if (step === null) {
@@ -220,6 +272,12 @@ class Board {
      * @return {Number}
      */
     static winner(board, target) {
+        if (this.availableSteps(board).length === 0) {
+            return {
+                player: PLAYER_UNKNOWN,
+            };
+        }
+
         for(let i = 0; i < board.length; i++) {
             for(let n = 0; n < board[i].length; n++) {
                 if (board[i][n] === PLAYER_UNKNOWN) {
