@@ -1,8 +1,22 @@
 <template>
     <div :class="wrapClass" @click="onClick">
-        <div :class="playerClass"></div>
+        <transition name="player">
+            <div :class="playerClass" v-if="!isNotPlayed"></div>
+        </transition>
     </div>
 </template>
+
+<style lang="scss">
+    .player-enter-active,
+    .player-leave-active {
+        transition: opacity .3s;
+    }
+
+    .player-enter,
+    .player-leave-to {
+        opacity: 0;
+    }
+</style>
 
 <script>
     import { PLAYER_UNKNOWN, PLAYER_X, PLAYER_O } from '../store/players';
@@ -16,10 +30,14 @@
         },
 
         computed: {
+            isNotPlayed() {
+                return this.player === PLAYER_UNKNOWN;
+            },
+
             wrapClass() {
                 let result = ['board__cell'];
 
-                if (this.clickable && this.player === PLAYER_UNKNOWN) result.push('board__cell--clickable');
+                if (this.clickable && this.isNotPlayed) result.push('board__cell--clickable');
 
                 return result;
             },
@@ -43,7 +61,7 @@
 
         methods: {
             onClick() {
-                if (this.player === PLAYER_UNKNOWN && this.clickable) {
+                if (this.isNotPlayed && this.clickable) {
                     this.$emit('step');
                 }
             },
@@ -55,7 +73,7 @@
     .board__cell {
         width: 40px;
         height: 40px;
-        border-right: 2px solid #ddd;
+        border-right: 2px solid #E0E0E0;
 
         &:last-child {
             border-right: none;
@@ -76,7 +94,7 @@
                 height: 30px;
                 margin: 5px;
                 border-radius: 50%;
-                border: 3px solid #7c8aff;
+                border: 3px solid #2196f3;
             }
         }
 
@@ -89,7 +107,7 @@
                 content: '';
                 display: block;
                 position: absolute;
-                background: #ff6b6b;
+                background: #F44336;
                 float: left;
                 border-radius: 2px;
                 width: 4px;

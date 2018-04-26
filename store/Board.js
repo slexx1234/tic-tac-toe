@@ -221,14 +221,14 @@ class Board {
     }
 
     /**
-     * Агрессия противника, ищет выигрышный ход, потом ищет ход где нужно защащатся,
+     * Ищет выигрышный ход, потом ищет ход где нужно защащатся,
      * если не один ход не найден, цель понижается
      * @param {Array} board
      * @param {Number} player
      * @param {Number} target
      * @returns {Array}
      */
-    static aggression(board, player, target) {
+    static deemStep(board, player, target) {
         let step = this.queue([
             () => this.randomStepForVictory(board, player, target),
             () => this.randomStepForVictory(board, this.enemy(player), target),
@@ -239,10 +239,10 @@ class Board {
         }
 
         if (target - 1 > 1) {
-            return this.aggression(board, player, target - 1);
+            return this.deemStep(board, player, target - 1);
         }
 
-        return null;
+        return this.randomAvailableStep(board);
     }
 
     /**
@@ -253,13 +253,10 @@ class Board {
      * @returns {Array}
      */
     static deem(board, player, target) {
-        let step = this.queue([
-            () => this.aggression(board, player, target),
-            () => this.randomAvailableStep(board),
-        ]);
+        let step = this.deemStep(board, player, target);
 
         if (step === null) {
-            // TODO Нет ходов
+            return board;
         }
 
         return this.step(board, step[0], step[1], player)
@@ -272,6 +269,8 @@ class Board {
      * @return {Number}
      */
     static winner(board, target) {
+        target = Number(target);
+
         if (this.availableSteps(board).length === 0) {
             return {
                 player: PLAYER_UNKNOWN,
@@ -334,7 +333,7 @@ class Board {
                     return {
                         player: board[i][n],
                         start: [i, n],
-                        end: [i + target, n - target],
+                        end: [i + target - 1, n - target + 1],
                     };
                 }
             }
