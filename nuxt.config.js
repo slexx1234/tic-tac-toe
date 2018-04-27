@@ -1,6 +1,6 @@
 module.exports = {
     head: {
-        title: 'tic-tac-toe',
+        title: 'Tic-tac-toe game',
         meta: [
             { charset: 'utf-8' },
             { name: 'viewport', content: 'width=device-width, initial-scale=1' },

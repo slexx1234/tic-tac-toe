@@ -122,7 +122,7 @@
                 return {
                     stroke: '#424242',
                     strokeLinecap: 'round',
-                    strokeWidth: '5px'
+                    strokeWidth: '6px'
                 };
             },
         },
