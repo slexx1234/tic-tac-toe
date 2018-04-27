@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Board from './Board';
+import Storage from './Storage';
 import { COMPLEXITY_DEFAULT } from './complexity';
 import { PLAYER_X, PLAYER_O, PLAYER_UNKNOWN } from './players';
 
@@ -27,29 +28,34 @@ const store = () => new Vuex.Store({
     mutations: {
         setWinner(state, winner) {
             state.winner = winner;
+            Storage.save(state);
         },
 
         setComplexity(state, complexity) {
             state.complexity = complexity;
             Board.setComplexity(complexity);
+            Storage.save(state);
         },
 
         setHeight(state, height) {
             state.height = height;
             state.board = Board.create(height, state.width);
             state.winner = Board.winner(state.board);
+            Storage.save(state);
         },
 
         setWidth(state, width) {
             state.width = width;
             state.board = Board.create(state.height, width);
             state.winner = Board.winner(state.board);
+            Storage.save(state);
         },
 
         setTarget(state, target) {
             state.target = target;
             state.board = Board.create(state.height, state.width);
             state.winner = Board.winner(state.board);
+            Storage.save(state);
         },
 
         setPlayer(state, player) {
@@ -61,18 +67,22 @@ const store = () => new Vuex.Store({
             state.player = player;
             state.board = Board.create(state.height, state.width);
             state.winner = Board.winner(state.board);
+            Storage.save(state);
         },
 
         toggleDrawer(state) {
             state.drawer = !state.drawer;
+            Storage.save(state);
         },
 
         showDrawer(state) {
             state.drawer = true;
+            Storage.save(state);
         },
 
         hideDrawer(state) {
             state.drawer = true;
+            Storage.save(state);
         },
 
         currentPlayerStep(state, { row, cell }) {
@@ -83,6 +93,7 @@ const store = () => new Vuex.Store({
                     state.board = Board.deem(state.board, state.enemy, state.target, state.complexity);
                 }
                 state.winner = Board.winner(state.board, state.target);
+                Storage.save(state);
             }
         },
 
@@ -90,12 +101,26 @@ const store = () => new Vuex.Store({
             if (state.board[row][cell] === PLAYER_UNKNOWN) {
                 state.board = Board.step(state.board, row, cell, player);
                 state.winner = Board.winner(state.board);
+                Storage.save(state);
             }
         },
 
         clear(state) {
             state.board = Board.create(state.height, state.width);
             state.winner = Board.winner(state.board);
+            Storage.save(state);
+        },
+
+        loadSavedState(state) {
+            const savedState = Storage.load();
+
+            if (savedState === null) {
+                return;
+            }
+
+            for(let key in savedState) {
+                state[key] = savedState[key];
+            }
         },
     },
 

@@ -127,6 +127,10 @@
             },
         },
 
+        mounted() {
+            this.$store.commit('loadSavedState');
+        },
+
         methods: {
             step(row, cell) {
                 this.$store.dispatch('step', { row, cell });
