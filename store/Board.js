@@ -9,6 +9,9 @@ class Board {
      * @returns {Array}
      */
     static create(height, width) {
+        height = Number(height);
+        width = Number(width);
+
         let board = [];
         for(let i = 0; i < height; i++) {
             let row = [];
@@ -17,6 +20,7 @@ class Board {
             }
             board.push(row);
         }
+
         return board;
     }
 

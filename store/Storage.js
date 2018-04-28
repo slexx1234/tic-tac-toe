@@ -12,8 +12,6 @@ export default class Storage {
             return;
         }
 
-        console.log(process.browser);
-
         localStorage.setItem('height', state.height);
         localStorage.setItem('width', state.width);
         localStorage.setItem('target', state.target);

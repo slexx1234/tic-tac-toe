@@ -7,8 +7,8 @@ import { PLAYER_X, PLAYER_O, PLAYER_UNKNOWN } from './players';
 
 Vue.use(Vuex);
 
-const DEFAULT_BOARD_HEIGHT = 20;
-const DEFAULT_BOARD_WIDTH = 10;
+const DEFAULT_BOARD_HEIGHT = 16;
+const DEFAULT_BOARD_WIDTH = 9;
 
 const DEFAULT_BOARD = Board.create(DEFAULT_BOARD_HEIGHT, DEFAULT_BOARD_WIDTH);
 
@@ -40,14 +40,14 @@ const store = () => new Vuex.Store({
         setHeight(state, height) {
             state.height = height;
             state.board = Board.create(height, state.width);
-            state.winner = Board.winner(state.board);
+            state.winner = null;
             Storage.save(state);
         },
 
         setWidth(state, width) {
             state.width = width;
             state.board = Board.create(state.height, width);
-            state.winner = Board.winner(state.board);
+            state.winner = null;
             Storage.save(state);
         },
 
