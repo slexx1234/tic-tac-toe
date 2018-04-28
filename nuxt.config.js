@@ -42,6 +42,7 @@ module.exports = {
         ],
         link: [
             { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' },
+            { rel: 'manifest', href: '/manifest.json' },
 
             // Icons
             { rel: 'apple-touch-icon', sizes: '57x57', href: '/favicons/ios-57.png' },
