@@ -1,22 +1,25 @@
-# tic-tac-toe
 
-> Tic-tac-toe game
-
-## Build Setup
-
-``` bash
-# install dependencies
-$ npm install # Or yarn install
-
-# serve with hot reload at localhost:3000
+# Tic-tac-toe  
+  
+  Это самая обычная игра в крести-нолики, не чего особенного.
+  
+## Установка
+  
+``` bash    
+$ git clone git@github.com:slexx1234/tic-tac-toe.git  
+$ cd tic-tac-toe 
+$ npm i  
 $ npm run dev
+```  
 
-# build for production and launch server
-$ npm run build
-$ npm start
+Этого достаточно, можно открыть игру по адресу [localhost:3000](http://localhost:3000/).
 
-# generate static project
-$ npm run generate
-```
+## Команды
 
-For detailed explanation on how things work, checkout the [Nuxt.js docs](https://github.com/nuxt/nuxt.js).
+*  `npm run dev` - Запуск сервера для разработки
+* `npm run build` - Сборка проекта
+* `npm run start` - Запуск сервера
+* `npm run secure` - Запуск https (Перед использование запустить `npm run dev`)
+* `npm run generate` - Генерация статического сайта
+* `npm run prod` - Генерация продакшен версии сайта
+
