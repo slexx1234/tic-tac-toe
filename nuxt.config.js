@@ -39,6 +39,11 @@ module.exports = {
             { property: 'og:locale', content: locale },
             { property: 'og:site_name', content: 'Tic-tac-toe' },
 
+            // Поисковики
+            { name: 'yandex-verification', content: '7a2343cc4687239f' },
+            { name: 'google-site-verification', content: 'j_6szK19CBprPSt4b5qxaLIvx7IitJWx6tyzkWgxFno' },
+            { name: 'wmail-verification', content: '29d08e18ececcecaa8e5162b082fcb11' },
+            { name: 'msvalidate.01', content: '7E04FF9455E17D24E4D53F0C881E418C' },
         ],
         link: [
             { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' },
