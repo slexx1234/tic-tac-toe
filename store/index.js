@@ -8,7 +8,7 @@ import { PLAYER_X, PLAYER_O, PLAYER_UNKNOWN } from './players';
 Vue.use(Vuex);
 
 const DEFAULT_BOARD_HEIGHT = 20;
-const DEFAULT_BOARD_WIDTH = 20;
+const DEFAULT_BOARD_WIDTH = 10;
 
 const DEFAULT_BOARD = Board.create(DEFAULT_BOARD_HEIGHT, DEFAULT_BOARD_WIDTH);
 
