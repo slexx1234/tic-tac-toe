@@ -64,7 +64,7 @@ module.exports = {
             { rel: 'icon', type: 'image/svg+xml', href: '/favicons/favicon.svg' },
         ],
     },
-
+/*
     generate: {
         minify: {
             collapseBooleanAttributes: true,
@@ -87,7 +87,7 @@ module.exports = {
             useShortDoctype: true,
         },
     },
-
+*/
     loading: { color: '#ffffff' },
 
     plugins: [
