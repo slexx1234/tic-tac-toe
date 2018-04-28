@@ -7,7 +7,8 @@
                 <v-text-field type="number" label="Necessary to collect in a row" min="3" v-model="target"/>
                 <v-select :items="players" v-model="player" label="Player"/>
                 <v-select :items="complexities" v-model="complexity" label="Complexity"/>
-                <v-btn @click="newGame" color="primary" block>New game</v-btn>
+                <v-btn @click="newGame" color="primary" class="mb-3" block>New game</v-btn>
+                <p class="white--text">Author <a href="https://slexx1234.netlify.com/" class="white--text">Shchepkin Aleksey</a></p>
             </v-container>
         </v-navigation-drawer>
         <v-toolbar color="blue" class="white--text" fixed clipped-left app>
