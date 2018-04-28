@@ -29,12 +29,19 @@ export default class Storage {
         let state = {};
 
         const loadNumber = key => {
-            let value = Number(localStorage.getItem(key));
-            if (!isNaN(value)) state[key] = value;
+            let value = localStorage.getItem(key);
+            if (value === null) return;
+            value = Number(value);
+            if (!isNaN(value) ) state[key] = value;
         };
 
         const loadJson = key => {
             let value = localStorage.getItem(key);
+
+            if (value === null) {
+                return;
+            }
+
             try {
                 value = JSON.parse(value);
             } catch(e) {
@@ -54,6 +61,10 @@ export default class Storage {
 
         loadJson('board');
         loadJson('winner');
+
+        if (typeof state.player === 'number') {
+            state.enemy = Board.enemy(state.player);
+        }
 
         return state;
     }
